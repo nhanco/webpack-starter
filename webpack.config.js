@@ -1,18 +1,26 @@
 var webpack = require('webpack');
 var path = require('path');
+// plugin
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var IconfontWebpackPlugin = require('iconfont-webpack-plugin');
+
 var glob = require("glob");
 // distribute folder
 var BUILD_DIR = path.resolve(__dirname, 'dist');
+var jsFileList = glob.sync("./script/*.js");
+var cssFileList = glob.sync("./css/*.css");
+cssFileList.forEach(function (element) {
+    jsFileList.push(element);
+});
+
 var config = {
-    entry: glob.sync("./script/*.js"),
-    entry: glob.sync("./css/*.css"),
+    entry: jsFileList,
     output: {
         path: BUILD_DIR,
         filename: 'app.js'
     },
-    watch: true,
+    // watch: true,
     plugins: [
         new UglifyJSPlugin({
             exclude: /\/excludes/
@@ -23,21 +31,24 @@ var config = {
         rules: [
             {
                 test: /\.css$/,
-                loader: ExtractTextPlugin.extract({
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
                     use: [
+                        'css-loader',
                         {
-                            loader: 'css-loader',
+                            loader: 'postcss-loader',
                             options: {
-                                sourceMap: false,
-                                minimize: true
+                                plugins: (loader) => [
+                                    new IconfontWebpackPlugin(loader)
+                                ]
                             }
                         }
                     ]
                 })
-
             }
         ]
-    },
+    }
+    ,
 };
 
 module.exports = config;
