@@ -45,10 +45,13 @@ var config = {
                         }
                     ]
                 })
+            },
+            {
+                test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+                use: ['file-loader?limit=1000&name=files/[md5:hash:base64:10].[ext]']
             }
         ]
-    }
-    ,
+    },
 };
 
 module.exports = config;
